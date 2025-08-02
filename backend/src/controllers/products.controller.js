@@ -25,10 +25,10 @@ export const getProduct = (req, res) => {
   const query = "select * from products where products.id = ?";
 
   db.query(query, [id], (err, data) => {
-    // if (data.length == 0) {
-    //   res.status(404).send("ID no valido");
-    //   return;
-    // }
+    if (data.length == 0) {
+      res.status(404).send("ID no valido");
+      return;
+    }
     try {
       res.send(data);
     } catch (error) {

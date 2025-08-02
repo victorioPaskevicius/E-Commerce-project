@@ -1,0 +1,12 @@
+.footer_container {
+  background: linear-gradient(to left, #0D0D0D, #222222);
+  width: 100dvw;
+  padding: 20px 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  margin-top: 5rem;
+}

@@ -1,22 +1,23 @@
-import react from "react";
 import { productsGrid } from "../../components/productsGrid.jsx";
+import { Header } from "../../components/header/header.jsx";
+import { Footer } from "../../components/footer/footer.jsx";
 
 function Home() {
-  // const { data } = useFetch("http://localhost:3001/products");
-
   return (
     <>
-      <div>
+      <Header />
+      <div className="container">
         <h1>Welcome to the Home Page</h1>
         <p className="m-5">
           This is where you can find the latest updates and features.
         </p>
 
-        <hr />
+        <h2>Featured Products</h2>
 
-        {/* Render grid products */}
+        <hr />
         {productsGrid()}
       </div>
+      <Footer />
     </>
   );
 }

@@ -7,7 +7,7 @@ export function cardProduct(product) {
       <h3>Category: {product.category_id}</h3>
       <br />
       <div className="d-flex flex-column gap-2">
-        <button className="btn btn-primary">Add to Cart</button>
+        <button className="btn btn-success">Add to Cart</button>
         <button className="btn btn-secondary">View Details</button>
       </div>
     </div>

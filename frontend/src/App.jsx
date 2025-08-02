@@ -7,19 +7,18 @@ import NotFound from "./pages/notFound/notFound.jsx";
 import ProductDetail from "./pages/productDetail/productDetail.jsx";
 import Perfil from "./pages/perfil/perfil.jsx";
 import Cart from "./pages/cart/cart.jsx";
-import "./App.css";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/products/category/:id" element={<ProductsByCategory />} />
-      <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/perfil" element={<Perfil />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/products/:category" element={<ProductsByCategory />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

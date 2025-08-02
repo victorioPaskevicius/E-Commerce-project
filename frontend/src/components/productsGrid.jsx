@@ -1,5 +1,5 @@
 import { cardProduct } from "./cardProduct.jsx";
-import { useFetch } from "../useFetch.js";
+import { useFetch } from "../hooks/useFetch.js";
 
 export function productsGrid() {
   const { data } = useFetch("http://localhost:3001/products");
