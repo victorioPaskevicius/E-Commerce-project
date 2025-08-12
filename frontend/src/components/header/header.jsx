@@ -9,7 +9,7 @@ export function Header() {
       <nav className="nav_links">
         <ul>
           <li>
-            <a className="btn btn-outline-success" href="/">Home</a>
+            <a className="btn btn-outline-success" href="/user/:id">Home</a>
           </li>
           <li>
             <a className="btn btn-outline-success" href="/login">Login</a>

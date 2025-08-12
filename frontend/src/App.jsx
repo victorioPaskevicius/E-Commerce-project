@@ -11,7 +11,7 @@ import Cart from "./pages/cart/cart.jsx";
 function App() {
   return (
     <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/user/:userid" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/perfil" element={<Perfil />} />

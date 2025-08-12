@@ -39,6 +39,22 @@ export const getUser = (req, res) => {
   });
 };
 
+export const getUserLogin = (req, res) => {
+  const { email, password } = req.body;
+  const query = "SELECT * FROM users WHERE email = ? AND password = ?";
+
+  db.query(query, [email, password], (err, data) => {
+    if (err) {
+      res.status(500).json({ message: "Error del servidor" });
+      console.log({ "Error del servidor": err });
+    }
+    if (data.length === 0) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    return res.status(201).json(data[0]);
+  });
+};
+
 export const createUser = (req, res) => {
   const { username, email, password } = req.body;
 
@@ -48,22 +64,42 @@ export const createUser = (req, res) => {
       .json({ message: "Todos los campos son obligatorios." });
   }
 
-  const role_id = 2;
-  const query =
-    "INSERT INTO users (name, email, password, role_id) VALUES (?, ?, ?, ?)";
-
-  db.query(query, [username, email, password, role_id], (err, result) => {
+  // Primero, verificamos si el email ya existe
+  const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
-      console.error("Error al insertar usuario:", err);
+      console.error("Error al verificar el email:", err);
       return res
         .status(500)
-        .json({ message: "Error al insertar datos del usuario" });
+        .json({ message: "Error en el servidor al verificar el correo." });
     }
 
-    res.status(201).json({
-      message: "Usuario insertado con éxito",
-      userId: result.insertId,
-    });
+    if (results.length > 0) {
+      return res.status(409).json({ message: "El correo ya está registrado." });
+    }
+
+    // Si no existe, se inserta el nuevo usuario
+    const role_id = 2;
+    const insertQuery =
+      "INSERT INTO users (name, email, password, role_id) VALUES (?, ?, ?, ?)";
+
+    db.query(
+      insertQuery,
+      [username, email, password, role_id],
+      (err, result) => {
+        if (err) {
+          console.error("Error al insertar usuario:", err);
+          return res
+            .status(500)
+            .json({ message: "Error al insertar datos del usuario" });
+        }
+
+        res.status(201).json({
+          message: "Usuario insertado con éxito",
+          id: result.insertId,
+        });
+      }
+    );
   });
 };
 
@@ -72,7 +108,7 @@ export const updateUser = (req, res) => {
   const { username } = req.body;
 
   if (!id) return res.status(400).json({ error: "ID no proporcionado" });
-  if (!username || username.length < 3) {
+  if (!username || username.length < 6) {
     return res
       .status(400)
       .json({ error: "El nombre debe tener al menos 6 caracteres" });
@@ -97,15 +133,19 @@ export const deleteUser = (req, res) => {
   const id = req.params.id;
   const query = "DELETE FROM users WHERE id = ?";
 
-  if (!id) {
-    res.status(404).json({ Error: "ID no valido" });
-  }
-
-  db.query(query, [id], (err) => {
+  db.query(query, [id], (err, data) => {
     if (err) {
       console.error({ "Error en el servidor:": err });
-      res.status(500).json({ Error: "Ha ocurrido un error en el servidor" });
+      return res
+        .status(500)
+        .json({ Error: "Ha ocurrido un error en el servidor" });
     }
-    res.status(201).send("Usuario eliminado con exito");
+    if (data.affectedRows == 0) {
+      return res
+        .status(404)
+        .json({ message: "El usuario que se intenta eliminar no existe" });
+    }
+
+    return res.status(201).send("Usuario eliminado con exito");
   });
 };

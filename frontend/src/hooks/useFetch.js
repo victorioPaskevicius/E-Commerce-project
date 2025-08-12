@@ -1,13 +1,50 @@
-import { useState, useEffect } from "react";
+import { use, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export function useFetch(url) {
+export function useFetch() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setData(data))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
-  return {data};
+  const request = async (
+    URL,
+    method = "GET",
+    body = null,
+    redirectTo = null
+  ) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(URL, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body ? JSON.stringify(body) : null,
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          result.message || "Ocurrio un error al realizar la solicitud de datos"
+        );
+      }
+
+      setData(result);
+
+      if (redirectTo) {
+        navigate(redirectTo + result.id);
+      }
+
+      return result;
+    } catch (error) {
+      setError(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { request, loading, error, data };
 }
