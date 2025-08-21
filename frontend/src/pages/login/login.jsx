@@ -33,7 +33,7 @@ function Login() {
   useEffect(() => {
     if (data) {
       localStorage.setItem("token", data.token);
-      navigate("/user/" + data.id);
+      navigate('/home')
     }
   }, [data]);
 

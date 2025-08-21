@@ -33,23 +33,28 @@ function App() {
     }
   }
 
+  // Esta funcion se encarga de redirigir al usuario a cada pagina dependiendo del estado del token
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const decoded = parseJwt(token);
 
-    if (!decoded || decoded.exp * 1000 < Date.now()) {
-      // Token inválido o expirado
-      navigate("/login");
-    } else {
-      // Token válido → redirigir al perfil/usuario
-      navigate("/user/" + localStorage.getItem("id"));
+    if (!token) {
+      navigate("/register");
+      return;
     }
-  }, [navigate]);
+
+    const decoded = parseJwt(token);
+    if (decoded.exp * 1000 < Date.now()) {
+      // Token vencido
+      localStorage.removeItem("token");
+      navigate("/login");
+      return;
+    }
+  }, []);
 
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/user/:userid" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/perfil" element={<Perfil />} />

@@ -53,19 +53,19 @@ export const getUserLogin = (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const username = data[0].name;
-    const token = jwt.sign({ username, email }, "stack", {
-      expiresIn: "1m",
+    let username = data[0].name;
+    let id = data[0].id
+    const token = jwt.sign({ id,username, email }, "stack", {
+      expiresIn: "30m",
     });
 
     return res.status(201).json({
-      id: data[0].id,
       token
     });
   });
 };
 
-export const createUser = (req, res) => {
+export const createUserRegister = (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
@@ -76,7 +76,7 @@ export const createUser = (req, res) => {
 
   // Primero, verificamos si el email ya existe
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkEmailQuery, [email], (err, results) => {
+  db.query(checkEmailQuery, [email], (err, data) => {
     if (err) {
       console.error("Error al verificar el email:", err);
       return res
@@ -84,7 +84,7 @@ export const createUser = (req, res) => {
         .json({ message: "Error en el servidor al verificar el correo." });
     }
 
-    if (results.length > 0) {
+    if (data.length > 0) {
       return res.status(409).json({ message: "El correo ya está registrado." });
     }
 
@@ -96,7 +96,7 @@ export const createUser = (req, res) => {
     db.query(
       insertQuery,
       [username, email, password, role_id],
-      (err, result) => {
+      (err, data) => {
         if (err) {
           console.error("Error al insertar usuario:", err);
           return res
@@ -104,9 +104,13 @@ export const createUser = (req, res) => {
             .json({ message: "Error al insertar datos del usuario" });
         }
 
+        let id = data.insertId
+        let token = jwt.sign({ id,username,email }, "stack", {
+          expiresIn: "30m"
+        })
+
         res.status(201).json({
-          message: "Usuario insertado con éxito",
-          id: result.insertId,
+          token,
         });
       }
     );

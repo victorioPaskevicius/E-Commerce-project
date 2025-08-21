@@ -2,6 +2,7 @@ import "./register.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetch } from "../../hooks/useFetch";
+import { useEffect } from "react";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -48,15 +49,21 @@ function Register() {
   function handleSubmit(e) {
     e.preventDefault();
     if (inputsValidate()) {
-      request(
-        "http://localhost:3001/users",
-        "POST",
-        { username, email, password },
-        "/user/"
-      );
+      request("http://localhost:3001/users", "POST", {
+        username,
+        email,
+        password,
+      });
       resetForm();
     }
   }
+
+  useEffect(() => {
+    if (data) {
+      localStorage.setItem("token", data.token);
+      navigate('/home')
+    }
+  }, [data]);
 
   return (
     <>
@@ -115,7 +122,12 @@ function Register() {
           />
         </div>
         <div className="container">
-          <p className="">Ya tienes una cuenta? <a href="/login" className="text-success">Inicia sesion</a></p>
+          <p className="">
+            Ya tienes una cuenta?{" "}
+            <a href="/login" className="text-success">
+              Inicia sesion
+            </a>
+          </p>
         </div>
         <button type="submit" className="btn btn-success btn-lg">
           Register

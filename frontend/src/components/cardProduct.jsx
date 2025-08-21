@@ -1,4 +1,4 @@
-export function cardProduct(product) {
+export function CardProduct(product) {
   return (
     <div className="border p-3 m-3" key={product.id}>
       <h2>Product: {product.name}</h2>
