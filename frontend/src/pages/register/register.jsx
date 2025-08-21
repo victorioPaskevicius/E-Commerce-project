@@ -63,7 +63,7 @@ function Register() {
       <form onSubmit={handleSubmit} className="form">
         <h1>Register</h1>
         <div className="form-group">
-          <label htmlFor="complete username">Complete name</label>
+          <label htmlFor="complete username">Username</label>
           <input
             className="container-fluid"
             placeholder="Username"

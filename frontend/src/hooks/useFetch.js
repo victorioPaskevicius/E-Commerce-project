@@ -5,13 +5,11 @@ export function useFetch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-  const navigate = useNavigate();
 
   const request = async (
     URL,
     method = "GET",
     body = null,
-    redirectTo = null
   ) => {
     setLoading(true);
     setError(null);
@@ -33,11 +31,6 @@ export function useFetch() {
       }
 
       setData(result);
-
-      if (redirectTo) {
-        navigate(redirectTo + result.id);
-      }
-
       return result;
     } catch (error) {
       setError(error);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetch } from "../../hooks/useFetch";
 import "./login.css";
@@ -7,8 +7,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorInput, setErrorInput] = useState("");
-  const {request, loading, error, data } = useFetch()
-
+  const { request, loading, error, data } = useFetch();
   const navigate = useNavigate();
 
   function inputsValidate() {
@@ -25,16 +24,18 @@ function Login() {
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (inputsValidate()) {
-      request(
-        "http://localhost:3001/userLogin",
-        "POST",
-        { email, password },
-        "/user/"
-      )
+      request("http://localhost:3001/userLogin", "POST", { email, password });
     }
   }
+
+  useEffect(() => {
+    if (data) {
+      localStorage.setItem("token", data.token);
+      navigate("/user/" + data.id);
+    }
+  }, [data]);
 
   return (
     <>
@@ -67,8 +68,13 @@ function Login() {
           />
         </div>
         <div className="container">
-          <p className="">Aun no tienes una cuenta? <a href="/register" className="text-success">Registrate</a></p>
-        </div>        
+          <p className="">
+            Aun no tienes una cuenta?{" "}
+            <a href="/register" className="text-success">
+              Registrate
+            </a>
+          </p>
+        </div>
         <button type="submit" className="btn btn-success btn-lg">
           Login
         </button>

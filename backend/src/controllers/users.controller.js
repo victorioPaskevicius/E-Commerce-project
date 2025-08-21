@@ -1,4 +1,5 @@
 import { db } from "../database/db.js";
+import jwt from "jsonwebtoken";
 
 // 🧩 3. 👤 Usuarios (/users)
 // GET	/users	Obtener todos los usuarios (admin)✔️
@@ -46,12 +47,21 @@ export const getUserLogin = (req, res) => {
   db.query(query, [email, password], (err, data) => {
     if (err) {
       res.status(500).json({ message: "Error del servidor" });
-      console.log({ "Error del servidor": err });
+      return console.log({ "Error del servidor": err });
     }
     if (data.length === 0) {
-      res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    return res.status(201).json(data[0]);
+
+    const username = data[0].name;
+    const token = jwt.sign({ username, email }, "stack", {
+      expiresIn: "1m",
+    });
+
+    return res.status(201).json({
+      id: data[0].id,
+      token
+    });
   });
 };
 
