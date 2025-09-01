@@ -3,7 +3,7 @@ import { Header } from "../../components/header/header.jsx";
 import { Footer } from "../../components/footer/footer.jsx";
 
 function Home() {
-    function parseJwt(token) {
+  function parseJwt(token) {
     if (!token) return null; // 👈 evitar error si no existe
     try {
       const base64Url = token.split(".")[1];
@@ -22,7 +22,7 @@ function Home() {
     }
   }
   let token = localStorage.getItem("token");
-  let tokenId = parseJwt(token).id
+  let tokenId = parseJwt(token).id;
 
   return (
     <>

@@ -1,9 +1,16 @@
+import { Header } from "../../components/header/header.jsx";
+import { Footer } from "../../components/footer/footer.jsx";
+import { ProductCart } from "../../components/productCart.jsx";
+
 function Cart() {
   return (
-    <div>
-      <h1>Carrito de Compras</h1>
-      <p>Aquí puedes ver los productos que has agregado a tu carrito.</p>
-    </div>
+    <>
+      <Header />
+
+      <ProductCart/>
+
+      <Footer />
+    </>
   );
 }
 

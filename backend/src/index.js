@@ -1,5 +1,5 @@
 import express from "express";
-import cors from 'cors'
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
@@ -9,10 +9,12 @@ app.use(cors());
 import routerProducts from "./routes/routerProducts.js";
 import routerCategories from "./routes/routerCategories.js";
 import routerUsers from "./routes/routerUsers.js";
+import routerCart from "./routes/routerCart.js";
 
-app.use(routerProducts)
+app.use(routerProducts);
 app.use(routerCategories);
-app.use(routerUsers)
+app.use(routerUsers);
+app.use(routerCart);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
