@@ -27,7 +27,7 @@ export function ProductCart() {
 
   useEffect(() => {
     request("http://localhost:3001/getCart", "POST", { userId });
-  }, []);
+  }, [cartItems]);
 
   // cuando llegan los datos, les agregamos una propiedad quantity
   useEffect(() => {
@@ -45,6 +45,21 @@ export function ProductCart() {
       )
     );
   };
+
+  // Funcion para eliminar un producto
+  async function deleteProduct (product) {
+    const res = await fetch("http://localhost:3001/productCart",{
+      method: 'DELETE',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        product_id: product.id,
+        user_id: userId
+      })
+    })
+    if (!res.ok) {alert(res.message || "Error al eliminar producto")}
+  }
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -71,6 +86,11 @@ export function ProductCart() {
                 <span>${product.price}</span>
               </div>
             </div>
+
+            {/* boton eliminar */}
+            <button onClick={() => {deleteProduct(product)}} className="btn btn-outline-danger">
+              Eliminar
+            </button>
 
             {/* Controles de cantidad */}
             <div className="btn-group d-flex align-items-center gap-3 p-3 border">

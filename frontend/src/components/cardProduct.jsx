@@ -3,13 +3,6 @@ import { useFetch } from "../hooks/useFetch";
 
 export function CardProduct() {
   const { request, data, loading, error } = useFetch();
-  const [cartId, setCartId] = useState(null);
-
-  useEffect(() => {
-    request("http://localhost:3001/products", "GET");
-    getCartId();
-  }, []);
-
   function parseJwt(token) {
     if (!token) return null;
     try {
@@ -26,58 +19,40 @@ export function CardProduct() {
       return null;
     }
   }
+  const token = localStorage.getItem("token");
+  const userId = parseJwt(token).id;
 
-  async function getCartId() {
-    const token = localStorage.getItem("token");
-    const decoded = parseJwt(token);
-    if (!decoded) return;
+  useEffect(() => {
+    request("http://localhost:3001/products", "GET");
+  }, []);
 
-    try {
-      const res = await fetch("http://localhost:3001/getCart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: decoded.id }),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message);
-
-      // suponiendo que tu backend devuelve un array con un objeto que tiene cart_id
-      setCartId(result[0].cart_id);
-    } catch (err) {
-      console.error("Error obteniendo carrito:", err.message);
-    }
-  }
+  if (loading) return <p>Cargando productos...</p>;
+  if (error) return <p>Error al cargar productos</p>;
 
   async function addProduct(product) {
-    if (!cartId) {
-      alert("Carrito no encontrado");
-      return;
-    }
-
     try {
       const res = await fetch("http://localhost:3001/addProdCart", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          cart_id: cartId,
+          userId,
           product_id: product.id,
-          quantity: 1, // 👈 podés hacerlo dinámico si agregás un contador
           price: product.price,
         }),
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message);
+      if (!res.ok) {
+        alert(res.message || "No se puedo añadir el producto");
+      }
 
       alert(result.message);
-    } catch (err) {
-      console.error("Error agregando producto:", err.message);
+    } catch (error) {
+      console.error(error);
     }
   }
-
-  if (loading) return <p>Cargando productos...</p>;
-  if (error) return <p>Error al cargar productos</p>;
 
   return (
     <div className="row">

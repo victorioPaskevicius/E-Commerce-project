@@ -28,39 +28,75 @@ export const getCart = (req, res) => {
 };
 
 export const addProduct = (req, res) => {
-  const { cart_id, product_id, quantity, price } = req.body;
-
-  // Verificar si el producto ya está en el carrito del usuario
-  const verifyProductQuery = `
-    SELECT * FROM cart_items WHERE cart_id = ? AND product_id = ?
+  // Obtener id del carrito
+  const { userId, product_id, price } = req.body;
+  const query = `
+    SELECT id FROM carts WHERE user_id = ?
   `;
-
-  db.query(verifyProductQuery, [cart_id, product_id], (err, data) => {
+  db.query(query, [userId], (err, data) => {
     if (err) {
-      console.error("Error en la consulta:", err);
-      return res.status(500).json({ message: "Error en el servidor" });
-    }
-
-    if (data.length > 0) {
+      console.log(err);
       return res
-        .status(201)
-        .json({ message: "El producto ya se encuentra en tu carrito" });
-    } else {
-      // Producto no existe, insertar nuevo
-      const insertQuery = `
-        INSERT INTO cart_items (cart_id, product_id, quantity, price)
-        VALUES (?, ?, ?, ?)
-      `;
-
-      db.query(insertQuery, [cart_id, product_id, quantity, price], (err) => {
-        if (err) {
-          console.error("Error al añadir producto:", err);
-          return res
-            .status(400)
-            .json({ message: "Error al añadir el producto al carrito" });
-        }
-        return res.status(201).json({ message: "Producto añadido con éxito" });
-      });
+        .status(500)
+        .json({ message: "Error al obtener id del carrito" });
     }
+    const cart_id = data[0].id;
+    // Comprobar que el item aun no este en el carrito
+    const isItemAdded = `
+      SELECT product_id FROM cart_items WHERE cart_id = ? AND product_id = ?
+    `;
+    db.query(isItemAdded, [cart_id, product_id], (err, data) => {
+      if (err) {
+        console.log(err);
+        return res.status(500);
+      }
+      if (data.length > 0) {
+        return res
+          .status(201)
+          .json({ message: "El producto ya se necuentra en tu carrito" });
+      }
+      // Insertar item en cart_items
+      const insertItemQuery = `
+      insert into cart_items (cart_id, product_id,quantity,price) VALUES (?,?,?,?)
+    `;
+      db.query(insertItemQuery, [cart_id, product_id, 1, price], (err) => {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .json({ message: "Error al insertar producto" });
+        }
+        return res
+          .status(201)
+          .json({ message: "Producto insertado con exito" });
+      });
+    });
+  });
+};
+
+export const deleteProduct = (req, res) => {
+  const { product_id, user_id } = req.body;
+  // Obtener id del carrito
+  const getCartIdQuery = `
+    SELECT id FROM carts WHERE user_id = ?
+  `;
+  db.query(getCartIdQuery, [user_id], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Error al obtener id del carrito" });
+    }
+    const cart_id = data[0].id;
+    const deleteQuery = `
+  DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?;
+  `;
+    db.query(deleteQuery, [cart_id, product_id], (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error al eliminar producto" });
+      }
+      res.status(200)
+    });
   });
 };

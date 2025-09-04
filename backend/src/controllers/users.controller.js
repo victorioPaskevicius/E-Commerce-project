@@ -54,13 +54,13 @@ export const getUserLogin = (req, res) => {
     }
 
     let username = data[0].name;
-    let id = data[0].id
-    const token = jwt.sign({ id,username, email }, "stack", {
+    let id = data[0].id;
+    const token = jwt.sign({ id, username, email }, "stack", {
       expiresIn: "30m",
     });
 
     return res.status(201).json({
-      token
+      token,
     });
   });
 };
@@ -93,27 +93,33 @@ export const createUserRegister = (req, res) => {
     const insertQuery =
       "INSERT INTO users (name, email, password, role_id) VALUES (?, ?, ?, ?)";
 
-    db.query(
-      insertQuery,
-      [username, email, password, role_id],
-      (err, data) => {
-        if (err) {
-          console.error("Error al insertar usuario:", err);
-          return res
-            .status(500)
-            .json({ message: "Error al insertar datos del usuario" });
-        }
-
-        let id = data.insertId
-        let token = jwt.sign({ id,username,email }, "stack", {
-          expiresIn: "30m"
-        })
-
-        res.status(201).json({
-          token,
-        });
+    db.query(insertQuery, [username, email, password, role_id], (err, data) => {
+      if (err) {
+        console.error("Error al insertar usuario:", err);
+        return res
+          .status(500)
+          .json({ message: "Error al insertar datos del usuario" });
       }
-    );
+
+      let id = data.insertId;
+      let token = jwt.sign({ id, username, email }, "stack", {
+        expiresIn: "30m",
+      });
+
+      const createCartQuery = `
+          INSERT INTO carts (user_id) VALUES (?)
+        `;
+      db.query(createCartQuery, [id], (err) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json({ message: "Error al crear carrito" });
+        }
+      });
+
+      res.status(201).json({
+        token,
+      });
+    });
   });
 };
 
