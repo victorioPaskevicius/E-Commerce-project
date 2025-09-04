@@ -5,11 +5,7 @@ export function useFetch() {
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
 
-  const request = async (
-    URL,
-    method = "GET",
-    body = null,
-  ) => {
+  const request = async (URL, method = "GET", body = null) => {
     setLoading(true);
     setError(null);
 
@@ -30,6 +26,9 @@ export function useFetch() {
       }
 
       setData(result);
+      if (result.message) {
+        alert(result.message);
+      }
       return result;
     } catch (error) {
       setError(error);
