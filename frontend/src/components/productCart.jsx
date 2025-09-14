@@ -26,8 +26,10 @@ export function ProductCart() {
   const userId = parseJwt(token)?.id;
 
   useEffect(() => {
-    request("http://localhost:3001/getCart", "POST", { userId });
-  }, [cartItems]);
+    if (userId) {
+      request("http://localhost:3001/getCart", "POST", { userId });
+    }
+  }, [userId]);
 
   // cuando llegan los datos, les agregamos una propiedad quantity
   useEffect(() => {
@@ -47,18 +49,63 @@ export function ProductCart() {
   };
 
   // Funcion para eliminar un producto
-  async function deleteProduct (product) {
-    const res = await fetch("http://localhost:3001/productCart",{
-      method: 'DELETE',
+  async function deleteProduct(product) {
+    const res = await fetch("http://localhost:3001/productCart", {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         product_id: product.id,
-        user_id: userId
-      })
-    })
-    if (!res.ok) {alert(res.message || "Error al eliminar producto")}
+        user_id: userId,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert(result.message || "Error al eliminar producto");
+      return;
+    }
+
+    // 💡 borrar también en el front para que no quede desactualizado
+    setCartItems((prev) => prev.filter((p) => p.id !== product.id));
+  }
+
+  // Funcion para realizar el pedido
+  async function order() {
+    try {
+      const res = await fetch("http://localhost:3001/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          items: cartItems.map((product) => ({
+            product_id: product.id,
+            quantity: product.quantity,
+            price: product.price,
+          })),
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        // 🚨 res.message no existe, debe ser result.message
+        alert(result.message || "Error al realizar el pedido");
+        return;
+      }
+
+      alert(result.message || "Pedido realizado con éxito ✅");
+
+      // 🧹 Limpiar carrito al confirmar el pedido
+      setCartItems([]);
+    } catch (err) {
+      console.error("Error en order:", err);
+      alert("Error de conexión con el servidor ❌");
+    }
   }
 
   const subtotal = cartItems.reduce(
@@ -88,7 +135,12 @@ export function ProductCart() {
             </div>
 
             {/* boton eliminar */}
-            <button onClick={() => {deleteProduct(product)}} className="btn btn-outline-danger">
+            <button
+              onClick={() => {
+                deleteProduct(product);
+              }}
+              className="btn btn-outline-danger"
+            >
               Eliminar
             </button>
 
@@ -132,7 +184,9 @@ export function ProductCart() {
             <p className="fw-bold fs-4">Total</p>
             <div className="d-flex flex-column">
               <span>${total}</span>
-              <button className="btn btn-success btn-lg">Comprar</button>
+              <button onClick={order} className="btn btn-success btn-lg">
+                Comprar
+              </button>
             </div>
           </div>
         </div>
